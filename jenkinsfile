@@ -28,6 +28,24 @@ pipeline {
                     sh 'mvn deploy'
                 }
         }
+        stage('Image Build') {
+            steps {
+                script {
+                    sh "docker build -t haritha0509/maven-app:latest ."
+                }
+            }
+        }
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-pat', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push haritha0509/maven-app:latest
+                    """
+                    }
+                }
+            }
     } 
    
 }
